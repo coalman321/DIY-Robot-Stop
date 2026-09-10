@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Challenge 2026</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Served offline from the Pico's access point: no external scripts/CDNs. -->
+</head>
+<body>
+    <!-- ===== Top Navigation Bar ===== -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="data:image/png;base64,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" alt="CAT Logo" class="navbar-logo" />
+            <h1 class="navbar-title">DIY Robot Challenge 2026</h1>
+        </div>
+        <div class="navbar-tabs">
+            <button class="nav-tab active" data-tab="scoring">Scoring</button>
+            <button class="nav-tab" data-tab="rules">Rules</button>
+            <button class="nav-tab" data-tab="updates">Competition Timeline</button>
+        </div>
+    </nav>
+
+    <!-- ===== Tab: Scoring ===== -->
+    <div class="tab-content active" id="tab-scoring">
+        <div class="app-container">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <!-- Stopwatch Section (Top Left 25%) -->
+                <div class="stopwatch-section">
+                    <div class="team-select-wrap" id="team-select-wrap">
+                        <label class="team-select-label" for="team-select">Select Team:</label>
+                        <select class="team-select" id="team-select">
+                            <option value="" disabled selected>-- Choose a team --</option>
+                        </select>
+                    </div>
+
+                    <div class="esp-connect-wrap">
+                        <span class="esp-status" id="esp-status">E-Stop: connecting&hellip;</span>
+                    </div>
+
+                    <h2 class="section-title">STOPWATCH</h2>
+                    <div class="stopwatch-display" id="stopwatch-display">00:00.000</div>
+                    <div class="stopwatch-controls">
+                        <button class="btn btn-start" id="btn-start">START</button>
+                        <button class="btn btn-lap" id="btn-lap" disabled title="Record Lap">+ LAP</button>
+                        <button class="btn btn-stop" id="btn-stop" disabled>STOP</button>
+                        <button class="btn btn-reset" id="btn-reset">RESET</button>
+                    </div>
+                    <div class="lap-times-container" id="lap-times-container">
+                        <div class="lap-times-header">
+                            <span>Lap</span>
+                            <span>Time</span>
+                            <span>Total</span>
+                        </div>
+                        <ul class="lap-times-list" id="lap-times-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Final Time Score Section (Bottom Left 25%) -->
+                <div class="score-section">
+                    <h2 class="section-title">FINAL TIME SCORE</h2>
+                    <div class="final-score" id="final-score">--:--</div>
+                    <div class="score-breakdown" id="score-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Base Time (Best Lap):</span>
+                            <span class="breakdown-value" id="base-time-display">0.000s</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Missed Challenges:</span>
+                            <span class="breakdown-value" id="missed-count-display">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Penalty:</span>
+                            <span class="breakdown-value" id="penalty-display">+0.000s</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-save" id="btn-save" disabled>SAVE RESULT</button>
+                    <div class="save-status" id="save-status"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Challenge Tiles (Right 50%) -->
+            <div class="right-panel">
+                <h2 class="section-title">RACE OBSTACLES</h2>
+                <p class="instructions">Click a challenge to mark it as <strong>MISSED</strong></p>
+                <div class="challenges-grid" id="challenges-grid">
+                    <!-- Tiles are generated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Tab: Rules ===== -->
+    <div class="tab-content" id="tab-rules">
+        <div class="page-content rules-page">
+            <h2 class="page-heading">Culture Club Robotics Competition 2026 Rules</h2>
+            <p class="rules-intro">The CAT Robotics Culture Club is ready to get competitive, are you? Teams of two or more build custom vehicles and compete to earn the best score during a two-day autonomous vehicle race held at the Tech Center.</p>
+
+            <!-- Section 0: General Rules -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">0 - General Rules and Updates</h3>
+
+                <div class="rule-card">
+                    <h4>0.1 - IP Rules</h4>
+                    <ul class="rule-list">
+                        <li>Teams must not use Caterpillar Proprietary IP on vehicles.</li>
+                        <li>Teams must use external code storage repositories like public GitHub (not GitHub Enterprise) or GitLab (not gitgis).</li>
+                        <li>Should there be any interest in further development for Cat projects, Tech Strategists would be involved to determine usability for the 1A platform.</li>
+                        <li>Content developed as part of this competition, or your 10% time, does not violate rule 0.1.1.</li>
+                        <li>If there is concern about something developed being truly novel, it is recommended for competitors to avoid inclusion on their vehicles.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>0.2 - Team Rules</h4>
+                    <ul class="rule-list">
+                        <li>Teams must be composed of 2 or more Cat Technology or Cat Digital employees.</li>
+                        <li>Teams may participate in a design review by June 1, 2026.</li>
+                        <li>Teams intending to receive funding from Cat must participate in the design review and must submit a parts list by June 30.</li>
+                        <li>Teams must demonstrate path following by August 14, 2026.</li>
+                        <li>Teams must complete a safety review by September 25, 2026.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>0.3 - Dimensions</h4>
+                    <ul class="rule-list">
+                        <li>Any rule that includes dimensions will use US customary units with a metric conversion for convenience. When there is a discrepancy between the two provided units, the US customary unit value shall be considered the intended value until a correction is made.</li>
+                        <li>All dimensions shall be considered nominal. Competition staff will ensure course construction meets all minimum or maximum dimensions. Nominal dimensions may vary &plusmn;1&Prime; unless otherwise specified.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 1: Safety Rules -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">1 - Safety Rules</h3>
+
+                <div class="rule-card">
+                    <h4>1.1 - General Safety</h4>
+                    <ul class="rule-list">
+                        <li>Robots must not include any devices or perform any actions that pose a risk to the safety of participants, volunteers, spectators, or robots.</li>
+                        <li>Designs will be reviewed for safety in the mandatory safety review prior to the event.</li>
+                        <li>Event staff will stop any robot deemed unsafe and will require additional inspection before it may resume operation.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>1.2 - Emergency Stop System</h4>
+                    <ul class="rule-list">
+                        <li>Robots must include an emergency stop system interface.</li>
+                        <li>Each course is equipped with an emergency stop system that provides a standard wired interface teams must connect with to stop their robots.</li>
+                        <li>Teams may provide an auxiliary emergency stop system in addition to the course-provided devices and interface.</li>
+                        <li>The team-provided emergency stop interface must communicate with the robot wirelessly.</li>
+                        <li>The team-provided emergency stop interface should have a communication range of at least 300 ft.</li>
+                        <li>The team-provided emergency stop interface must not interfere with other robots.</li>
+                        <li>The team-provided emergency stop interface must fail safe - if the robot cannot receive wireless communication signals, the robot must stop within 1 second.</li>
+                        <li>If an emergency stop is requested, the robot must stop within 1 second.</li>
+                        <li>Emergency stop activation devices will be located around the course and may be used by event staff and team members.</li>
+                        <li>When an emergency stop is activated, all robot motion must cease.</li>
+                        <li>No humans may enter the competition course perimeter unless all robots are emergency-stopped and have come to a complete stop.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 2: Robot Rules -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">2 - Robot Rules</h3>
+
+                <div class="rule-card">
+                    <h4>2.1 - Budget</h4>
+                    <ul class="rule-list">
+                        <li>Teams may use up to <strong>$1000</strong> of Caterpillar-provided funding to purchase parts.</li>
+                        <li>Teams may use a provided perception sensor that does not count towards the $500 budget.</li>
+                        <li>Teams may spend personal funds on their robot beyond the $500 provided by Caterpillar.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>2.2 - Robot Dimensions</h4>
+                    <ul class="rule-list">
+                        <li>The robot may never exceed: <strong>16&Prime; width &times; 24&Prime; length &times; 16&Prime; height</strong>.</li>
+                        <li>The robot may not exceed <strong>25 lbs</strong>.</li>
+                        <li>Onboard electrical systems must never exceed <strong>50V</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>2.3 &ndash; 2.7 - Autonomy &amp; Operations</h4>
+                    <ul class="rule-list">
+                        <li>While competing, robots must not communicate with any remote control-like systems off track. Robots must operate <strong>autonomously</strong>.</li>
+                        <li>Emergency stop system and RTK GNSS are exempt from this rule.</li>
+                        <li>Robots must be able to autonomously start and stop.</li>
+                        <li>Robots must start based on a visual signal on the course.</li>
+                        <li>Robots must stop after completing the specified number of laps.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>2.8 - Identification Flag</h4>
+                    <ul class="rule-list">
+                        <li>All robots must include a mount for an identification flag. Event staff will provide a flag with the team number.</li>
+                        <li>Robot must always display the team's flag when on the competition course.</li>
+                        <li>Flag: yellow color, black numbers, 4&Prime; height &times; 5&Prime; width, steel wire pole.</li>
+                        <li>The top of the flag must be between <strong>24&ndash;26&Prime;</strong> above the ground when mounted.</li>
+                        <li>The flag mounting point on the robot may be no higher than <strong>8&Prime;</strong> above the ground to allow the flag to freely bend when passing through short obstacles.</li>
+                        <li>The flag may extend beyond the robot dimensions and does not count toward weight.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>2.9 - Batteries</h4>
+                    <ul class="rule-list">
+                        <li>Teams must have a sufficient number of batteries to run at least <strong>3 consecutive heats</strong>. Battery charging capability during the event may be limited.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 3: Course Rules -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">3 - Course Rules</h3>
+
+                <div class="rule-card">
+                    <h4>3.1 - General Course</h4>
+                    <ul class="rule-list">
+                        <li>The competition will be held on two courses: a <strong>speed course</strong> and an <strong>obstacle course</strong>.</li>
+                        <li>Teams will receive a copy of the intended race course including instructions for any intersection prior to racing.</li>
+                        <li>Both courses will guarantee minimum track width of <strong>20&Prime;</strong>.</li>
+                        <li>Both courses will include a vision-based starting indicator.</li>
+                        <li>Teams may start their robot using an alternative manual trigger by taking a <strong>5 second time penalty</strong> (exception to autonomy rules).</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>3.2 - Speed Course</h4>
+                    <ul class="rule-list">
+                        <li>Robots will complete <strong>3 consecutive timed laps</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>3.3 - Obstacle Course</h4>
+                    <ul class="rule-list">
+                        <li>Robots will complete <strong>2 consecutive timed laps</strong>.</li>
+                        <li>Robots may bypass obstacles by incurring a time penalty.</li>
+                        <li>Teams wishing to bypass an obstacle must emergency stop their robot before entering the course and move their robot to the designated starting area after the bypassed obstacle.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 4: Race Rules -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">4 - Race Rules</h3>
+
+                <div class="rule-card">
+                    <h4>4.1 - Heats</h4>
+                    <ul class="rule-list">
+                        <li>Robots will race in heats.</li>
+                        <li>Each team will receive <strong>1 practice heat</strong> (not scored) for course calibration.</li>
+                        <li>Teams will compete in <strong>2&ndash;4 competition heats</strong> on each course.</li>
+                        <li>A team's best score for each course across all heats will be used to determine winners.</li>
+                        <li>Each heat is <strong>10 minutes</strong>.</li>
+                        <li>An E-Stop will be triggered when either the heat time elapses or the team declares they would like to complete their heat.</li>
+                        <li>Within each heat, a team may attempt multiple runs. Before a scored run, the team must notify the race director so event staff can reset the course and prepare to time the run.</li>
+                        <li>The best score from all runs within a heat is recorded for the team's heat score.</li>
+                        <li>If a team is restricted from running on the course outside their control, the race director will either extend the heat or provide a replacement time slot.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-card">
+                    <h4>4.2 - E-Stop Operator</h4>
+                    <ul class="rule-list">
+                        <li>Teams must designate one team member to operate a remote emergency stop activator during each heat.</li>
+                        <li>The designated person must continuously monitor the robot while it is on the course.</li>
+                        <li>The team member may use a course-provided or team-provided auxiliary emergency stop activator.</li>
+                        <li>The designated person must immediately activate an emergency stop when directed by event staff, the team, or whenever a dangerous situation occurs.</li>
+                        <li>Vehicles must remain on the track until all motion ceases and the track is deemed safe by the race director.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 5: Scoring -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">5 - Scoring</h3>
+
+                <div class="rule-card">
+                    <h4>Obstacle Course Penalty Formula</h4>
+                    <p>Missed obstacles incur an escalating penalty added to the base time:</p>
+                    <code class="formula">Final = Base Time + 15 &times; (N + MAX(N&minus;1, 0) &times; N / 2)</code>
+                    <p class="formula-note">where <em>N</em> = number of missed obstacles</p>
+                    <table class="penalty-table">
+                        <thead>
+                            <tr><th>Missed Obstacles</th><th>Penalty (s)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>0</td><td>0</td></tr>
+                            <tr><td>1</td><td>15</td></tr>
+                            <tr><td>2</td><td>60</td></tr>
+                            <tr><td>3</td><td>135</td></tr>
+                            <tr><td>4</td><td>240</td></tr>
+                            <tr><td>5</td><td>375</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 6: Knowledge Sharing -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">6 - Knowledge Sharing &amp; Engagement</h3>
+
+                <div class="rule-card">
+                    <ul class="rule-list">
+                        <li>Teams shall use the <a href="https://cat.stackenterprise.co/posts/tagged/253" target="_blank" rel="noopener noreferrer">Cat Robotics Stack Overflow</a> to ask questions.</li>
+                        <li>Event organizers will monitor the <strong>DIY-Robot-Challenge</strong> tag and respond to questions.</li>
+                        <li>Teams may answer their own questions to share with other teams.</li>
+                        <li>Rules and other documents will be archived in SharePoint.</li>
+                        <li>Any version of documents published for viewing from other sources have no guaranteed update frequency.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Logistics -->
+            <div class="rules-section">
+                <h3 class="rules-section-title">Additional Logistics</h3>
+                <div class="rule-card">
+                    <ul class="rule-list">
+                        <li>Teams outside the Peoria area will be given 2 spots per team to attend.</li>
+                        <li>Teams must have at least two CAT Technology or CAT Digital employees. Other Caterpillar employees may join teams, but do not count towards the two-person minimum rule.</li>
+                        <li>Caterpillar proprietary IP should not be used in the development of these vehicles.</li>
+                        <li>For those interested in helping plan the event including rules and course layout, or give feedback on the preliminary rules, please contact <strong>Cole T</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Tab: Competition Timeline ===== -->
+    <div class="tab-content" id="tab-updates">
+        <div class="page-content">
+            <h2 class="page-heading">Competition Timeline</h2>
+
+            <div class="updates-timeline">
+                <div class="update-card past">
+                    <div class="update-date">February 2026</div>
+                    <h3>Challenge Announced to Divisions</h3>
+                </div>
+                <div class="update-card past">
+                    <div class="update-date">March 4th, 2026</div>
+                    <h3>Challenge Rules Released</h3>
+                </div>
+                <div class="update-card past">
+                    <div class="update-date">March 4th, 2026</div>
+                    <h3>Team Signups Open</h3>
+                </div>
+                <div class="update-card past">
+                    <div class="update-date">March 31st, 2026</div>
+                    <h3>Team Signups Close</h3>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">April 24th, 2026</div>
+                    <h3>Seed Funding / Perception Component Acceptance Deadline</h3>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">May 1st, 2026</div>
+                    <h3>Scoring Rules Update Release</h3>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">May 15th, 2026</div>
+                    <h3>E-Stop Interface Rules Update Release</h3>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">June 1st, 2026</div>
+                    <h3>Complete Optional Design Review</h3>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">June 1st, 2026</div>
+                    <h3>Design Reviews Complete</h3>
+                    <p>Required for teams accepting seed funding and/or perception component.</p>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">June 1st, 2026</div>
+                    <h3>Obstacle Design Specifications Update Release</h3>
+                </div>
+                <div class="update-card  past">
+                    <div class="update-date">June 30th, 2026</div>
+                    <h3>Complete Team Purchases with CAT Funds</h3>
+                </div>
+                <div class="update-card past">
+                    <div class="update-date">July 1st, 2026</div>
+                    <h3>Q&amp;A Rules Update Release</h3>
+                </div>
+                <div class="update-card">
+                    <div class="update-date">August 1st, 2026</div>
+                    <h3>Q&amp;A Rules Update Release</h3>
+                </div>
+                <div class="update-card">
+                    <div class="update-date">August 14th, 2026</div>
+                    <h3>Complete Path Following Demo</h3>
+                </div>
+                <div class="update-card">
+                    <div class="update-date">August 14th, 2026</div>
+                    <h3>Movement Review Complete</h3>
+                </div>
+                <div class="update-card">
+                    <div class="update-date">September 1st, 2026</div>
+                    <h3>Final Rules Update Release</h3>
+                </div>
+                <div class="update-card">
+                    <div class="update-date">September 23rd, 2026</div>
+                    <h3>Complete Safety Review</h3>
+                </div>
+                <div class="update-card">
+                    <div class="update-date">September 23rd, 2026</div>
+                    <h3>Safety Reviews Complete</h3>
+                </div>
+                <div class="update-card race-day">
+                    <div class="update-badge">RACE DAYS</div>
+                    <div class="update-date">October 1st &ndash; 2nd, 2026</div>
+                    <h3>Vehicles Compete Outside Tech Center Bldg. A</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keeps the viewing device's screen awake over plain HTTP, where the Wake
+         Lock API is unavailable. Purpose-built replacement for NoSleep.js --
+         see the file header for what it fixes on mobile browsers. -->
+    <script src="js/wakelock.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

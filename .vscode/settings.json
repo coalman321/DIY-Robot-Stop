@@ -1,0 +1,31 @@
+{
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingModuleSource": "none"
+    },
+    "python.terminal.activateEnvironment": false,
+    "micropico.openOnStart": true,
+    "//": "www/ is the site served by http_server.py. Allow the image/font types",
+    "//2": "it needs, and keep the RacingScoreWebApp source copy off the device.",
+    "micropico.syncFileTypes": [
+        "py", "txt", "log", "json", "xml", "html", "js", "css", "mpy",
+        "png", "ico", "svg", "woff", "woff2"
+    ],
+    "micropico.pyIgnore": [
+        "**/.vscode/**/*",
+        "**/.git/**/*",
+        "**/.gitignore",
+        "**/env/**/*",
+        "**/venv/**/*",
+        "**/__pycache__/**/*",
+        "**/*.pyc",
+        "RacingScoreWebApp/**/*"
+    ],
+    "python.analysis.typeshedPaths": [
+        "~/.micropico-stubs/included"
+    ],
+    "python.analysis.extraPaths": [
+        "~/.micropico-stubs/included"
+    ]
+}
