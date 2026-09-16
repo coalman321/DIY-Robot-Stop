@@ -184,10 +184,12 @@ let lapTimes = [];         // individual lap durations in ms
 let lastLapMark = 0;       // elapsed time (ms) at the last recorded lap
 let selectedTeam = '';
 
-// All challenges start as completed (selected/green)
-// challengeState: true = completed, false = missed
+// All challenges start with zero failures (green/completed).
+// challengeState: number of times the obstacle was failed, 0-2. Clicking past
+// 2 wraps back to 0 rather than climbing indefinitely.
+const MAX_FAIL_COUNT = 2;
 let challengeState = {};
-CHALLENGES.forEach(c => challengeState[c.id] = true);
+CHALLENGES.forEach(c => challengeState[c.id] = 0);
 
 // ===== DOM References =====
 const stopwatchDisplay = document.getElementById('stopwatch-display');
@@ -202,6 +204,8 @@ const penaltyDisplay = document.getElementById('penalty-display');
 const challengesGrid = document.getElementById('challenges-grid');
 const lapTimesList = document.getElementById('lap-times-list');
 const teamSelect = document.getElementById('team-select');
+const courseSelect = document.getElementById('course-select');
+const appContainer = document.querySelector('.app-container');
 const btnSave = document.getElementById('btn-save');
 const saveStatus = document.getElementById('save-status');
 const espStatus = document.getElementById('esp-status');
@@ -303,8 +307,8 @@ function resetStopwatch() {
     btnStop.disabled = true;
     btnReset.disabled = false;
 
-    // Reset all challenges to completed
-    CHALLENGES.forEach(c => challengeState[c.id] = true);
+    // Reset all challenges to zero failures
+    CHALLENGES.forEach(c => challengeState[c.id] = 0);
     renderChallenges();
 
     // Reset score
@@ -539,7 +543,9 @@ function renderLaps() {
 // never disagree and the export never depends on a cached, possibly-stale value.
 function computeScore() {
     const baseTimeS = getBestLapMs() / 1000; // convert ms to seconds, using the best lap time
-    const numMissed = CHALLENGES.filter(c => !challengeState[c.id]).length;
+    // Each individual failure counts toward the penalty, not just each
+    // obstacle that was failed at least once.
+    const numMissed = CHALLENGES.reduce((sum, c) => sum + challengeState[c.id], 0);
     const penaltyS = 15 * (numMissed + (Math.max(numMissed - 1, 0) * numMissed) / 2);
     const finalTimeS = baseTimeS + penaltyS;
     return { baseTimeS, numMissed, penaltyS, finalTimeS };
@@ -568,12 +574,13 @@ function renderChallenges() {
 
     CHALLENGES.forEach(challenge => {
         const tile = document.createElement('div');
-        const isCompleted = challengeState[challenge.id];
+        const failCount = challengeState[challenge.id];
+        const isCompleted = failCount === 0;
         tile.className = `challenge-tile ${isCompleted ? 'completed' : 'missed'}`;
         tile.dataset.id = challenge.id;
 
         tile.innerHTML = `
-            <span class="tile-status">${isCompleted ? '✓' : '✕'}</span>
+            <span class="tile-status">${isCompleted ? '✓' : failCount}</span>
             <div class="tile-icon">${challenge.icon}</div>
             <div class="tile-label">${challenge.name}</div>
         `;
@@ -584,7 +591,7 @@ function renderChallenges() {
 }
 
 function toggleChallenge(id) {
-    challengeState[id] = !challengeState[id];
+    challengeState[id] = (challengeState[id] + 1) % (MAX_FAIL_COUNT + 1);
     renderChallenges();
 
     // Recalculate if stopwatch has been stopped
@@ -640,6 +647,16 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 renderChallenges();
 renderLaps();
 populateTeamSelect();
+applyCourseSelection();
+
+// ===== Course Selection =====
+// Not reset by RESET -- the course doesn't change between runs on the same
+// course, so clearing it on every reset would force re-selecting it constantly.
+function applyCourseSelection() {
+    appContainer.classList.toggle('course-speed', courseSelect.value === 'speed');
+}
+
+courseSelect.addEventListener('change', applyCourseSelection);
 
 // ===== Team Selection =====
 function populateTeamSelect() {
@@ -668,7 +685,8 @@ function csvField(value) {
 }
 
 function buildResultCsv() {
-    const missedNames = CHALLENGES.filter(c => !challengeState[c.id]).map(c => c.name);
+    const missedNames = CHALLENGES.filter(c => challengeState[c.id] > 0)
+        .map(c => `${c.name} (x${challengeState[c.id]})`);
     const score = computeScore();
     const header = [
         'Timestamp', 'Team', 'Final Score', 'Final Score (s)',

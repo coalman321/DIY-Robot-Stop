@@ -150,6 +150,71 @@ html, body {
     margin-bottom: 16px;
 }
 
+/* ===== Course & Team Selection Row ===== */
+.selects-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 660px;
+}
+
+.selects-row .course-select-wrap,
+.selects-row .team-select-wrap {
+    margin-bottom: 0;
+    flex: 1 1 220px;
+    max-width: 320px;
+}
+
+/* ===== Course Selection ===== */
+.course-select-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.course-select-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.course-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--accent-yellow);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.course-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.4);
+}
+
+/* Speed course has no obstacles to mark, so the right panel is hidden and the
+   left panel (stopwatch/score) takes the full width. */
+.app-container.course-speed .right-panel {
+    display: none;
+}
+
+.app-container.course-speed .left-panel {
+    width: 100%;
+    border-right: none;
+}
+
 /* ===== Team Selection ===== */
 .team-select-wrap {
     display: flex;
