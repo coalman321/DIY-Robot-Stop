@@ -613,6 +613,38 @@ html, body {
     margin-bottom: 4px;
 }
 
+/* ===== Lap Selection (which lap obstacle failures apply to) ===== */
+.lap-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 8px;
+}
+
+.lap-select-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.lap-select {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--accent-yellow);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.lap-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.4);
+}
+
 .instructions {
     color: var(--text-secondary);
     font-size: 0.85rem;

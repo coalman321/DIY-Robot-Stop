@@ -184,12 +184,21 @@ let lapTimes = [];         // individual lap durations in ms
 let lastLapMark = 0;       // elapsed time (ms) at the last recorded lap
 let selectedTeam = '';
 
-// All challenges start with zero failures (green/completed).
-// challengeState: number of times the obstacle was failed, 0-2. Clicking past
-// 2 wraps back to 0 rather than climbing indefinitely.
-const MAX_FAIL_COUNT = 2;
-let challengeState = {};
-CHALLENGES.forEach(c => challengeState[c.id] = 0);
+// Skips are tracked per lap, and each lap carries its own penalty. An obstacle
+// can be skipped at most once per lap; every obstacle starts not skipped
+// (green/completed) on every lap.
+// lapSkips[lapIndex][obstacleId]: true if the obstacle was skipped on that lap.
+// Entries are created lazily by getLapState().
+let lapSkips = [];
+let selectedLap = 0;       // lap index that obstacle clicks apply to
+
+function getLapState(lap) {
+    if (!lapSkips[lap]) {
+        lapSkips[lap] = {};
+        CHALLENGES.forEach(c => lapSkips[lap][c.id] = false);
+    }
+    return lapSkips[lap];
+}
 
 // ===== DOM References =====
 const stopwatchDisplay = document.getElementById('stopwatch-display');
@@ -198,11 +207,13 @@ const btnLap = document.getElementById('btn-lap');
 const btnStop = document.getElementById('btn-stop');
 const btnReset = document.getElementById('btn-reset');
 const finalScoreEl = document.getElementById('final-score');
+const scoringLapDisplay = document.getElementById('scoring-lap-display');
 const baseTimeDisplay = document.getElementById('base-time-display');
 const missedCountDisplay = document.getElementById('missed-count-display');
 const penaltyDisplay = document.getElementById('penalty-display');
 const challengesGrid = document.getElementById('challenges-grid');
 const lapTimesList = document.getElementById('lap-times-list');
+const lapSelect = document.getElementById('lap-select');
 const teamSelect = document.getElementById('team-select');
 const courseSelect = document.getElementById('course-select');
 const appContainer = document.querySelector('.app-container');
@@ -307,13 +318,16 @@ function resetStopwatch() {
     btnStop.disabled = true;
     btnReset.disabled = false;
 
-    // Reset all challenges to zero failures
-    CHALLENGES.forEach(c => challengeState[c.id] = 0);
+    // Reset all challenges to zero failures on every lap
+    lapSkips = [];
+    selectedLap = 0;
+    renderLapSelect();
     renderChallenges();
 
     // Reset score
     finalScoreEl.textContent = '--:--';
     finalScoreEl.classList.remove('calculated');
+    scoringLapDisplay.textContent = '--';
     baseTimeDisplay.textContent = '0.000s';
     missedCountDisplay.textContent = '0';
     penaltyDisplay.textContent = '+0.000s';
@@ -500,12 +514,28 @@ function recordLap() {
     if (lapDuration <= 0) return; // avoid duplicate/zero-length laps
     lapTimes.push(lapDuration);
     lastLapMark = currentElapsed;
+    // Pressing LAP starts the next lap, so obstacle clicks now apply to it. The
+    // final segment recorded by STOP (isRunning is already false) leaves the
+    // selection alone.
+    if (isRunning) selectedLap = lapTimes.length;
     renderLaps();
+    renderLapSelect();
+    renderChallenges();
 }
 
-function getBestLapMs() {
-    if (lapTimes.length === 0) return Math.floor(stopwatchElapsed);
-    return Math.min(...lapTimes);
+// The dropdown offers the recorded laps plus the one in progress while the
+// stopwatch is running, and always at least Lap 1 (e.g. before any laps exist).
+function renderLapSelect() {
+    const count = Math.max(1, lapTimes.length + (isRunning ? 1 : 0));
+    selectedLap = Math.min(selectedLap, count - 1);
+    lapSelect.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Lap ${i + 1}`;
+        lapSelect.appendChild(option);
+    }
+    lapSelect.value = selectedLap;
 }
 
 function renderLaps() {
@@ -519,13 +549,14 @@ function renderLaps() {
         return;
     }
 
-    const bestLap = Math.min(...lapTimes);
+    // Highlight the lap that counts toward the score (best time after penalty).
+    const scoringLap = computeScore().lapIndex;
     let cumulative = 0;
 
     lapTimes.forEach((lapMs, index) => {
         cumulative += lapMs;
         const li = document.createElement('li');
-        if (lapMs === bestLap) li.classList.add('best-lap');
+        if (index === scoringLap) li.classList.add('best-lap');
         li.innerHTML = `
             <span class="lap-number">Lap ${index + 1}</span>
             <span class="lap-time">${formatTime(lapMs)}</span>
@@ -541,20 +572,39 @@ function renderLaps() {
 // ===== Score Calculation =====
 // Shared by the on-screen breakdown and the CSV export below, so the two can
 // never disagree and the export never depends on a cached, possibly-stale value.
+//
+// Each lap is penalized on its own skips, and the score is the best lap time
+// after penalty. Returns that lap's breakdown plus its zero-based lapIndex.
+function lapMissedCount(lap) {
+    const state = getLapState(lap);
+    return CHALLENGES.filter(c => state[c.id]).length;
+}
+
+function penaltySeconds(numMissed) {
+    return 15 * (numMissed + (Math.max(numMissed - 1, 0) * numMissed) / 2);
+}
+
 function computeScore() {
-    const baseTimeS = getBestLapMs() / 1000; // convert ms to seconds, using the best lap time
-    // Each individual failure counts toward the penalty, not just each
-    // obstacle that was failed at least once.
-    const numMissed = CHALLENGES.reduce((sum, c) => sum + challengeState[c.id], 0);
-    const penaltyS = 15 * (numMissed + (Math.max(numMissed - 1, 0) * numMissed) / 2);
-    const finalTimeS = baseTimeS + penaltyS;
-    return { baseTimeS, numMissed, penaltyS, finalTimeS };
+    // Before any lap is recorded, the running time stands in as a single lap.
+    const laps = lapTimes.length ? lapTimes : [Math.floor(stopwatchElapsed)];
+    let best = null;
+    laps.forEach((lapMs, lapIndex) => {
+        const baseTimeS = lapMs / 1000; // convert ms to seconds
+        const numMissed = lapMissedCount(lapIndex);
+        const penaltyS = penaltySeconds(numMissed);
+        const finalTimeS = baseTimeS + penaltyS;
+        if (!best || finalTimeS < best.finalTimeS) {
+            best = { lapIndex, baseTimeS, numMissed, penaltyS, finalTimeS };
+        }
+    });
+    return best;
 }
 
 function calculateFinalScore() {
-    const { baseTimeS, numMissed, penaltyS, finalTimeS } = computeScore();
+    const { lapIndex, baseTimeS, numMissed, penaltyS, finalTimeS } = computeScore();
 
     // Update breakdown
+    scoringLapDisplay.textContent = `Lap ${lapIndex + 1}`;
     baseTimeDisplay.textContent = `${baseTimeS.toFixed(3)}s`;
     missedCountDisplay.textContent = `${numMissed}`;
     penaltyDisplay.textContent = `+${penaltyS.toFixed(3)}s`;
@@ -572,15 +622,16 @@ function calculateFinalScore() {
 function renderChallenges() {
     challengesGrid.innerHTML = '';
 
+    const state = getLapState(selectedLap);
+
     CHALLENGES.forEach(challenge => {
         const tile = document.createElement('div');
-        const failCount = challengeState[challenge.id];
-        const isCompleted = failCount === 0;
+        const isCompleted = !state[challenge.id];
         tile.className = `challenge-tile ${isCompleted ? 'completed' : 'missed'}`;
         tile.dataset.id = challenge.id;
 
         tile.innerHTML = `
-            <span class="tile-status">${isCompleted ? '✓' : failCount}</span>
+            <span class="tile-status">${isCompleted ? '✓' : '✕'}</span>
             <div class="tile-icon">${challenge.icon}</div>
             <div class="tile-label">${challenge.name}</div>
         `;
@@ -591,14 +642,21 @@ function renderChallenges() {
 }
 
 function toggleChallenge(id) {
-    challengeState[id] = (challengeState[id] + 1) % (MAX_FAIL_COUNT + 1);
+    const state = getLapState(selectedLap);
+    state[id] = !state[id];
     renderChallenges();
 
     // Recalculate if stopwatch has been stopped
     if (hasStopped) {
         calculateFinalScore();
+        renderLaps(); // the scoring lap may have changed
     }
 }
+
+lapSelect.addEventListener('change', () => {
+    selectedLap = parseInt(lapSelect.value, 10);
+    renderChallenges();
+});
 
 // ===== Event Listeners =====
 btnStart.addEventListener('click', startStopwatch);
@@ -644,6 +702,7 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 });
 
 // ===== Initialize =====
+renderLapSelect();
 renderChallenges();
 renderLaps();
 populateTeamSelect();
@@ -685,24 +744,34 @@ function csvField(value) {
 }
 
 function buildResultCsv() {
-    const missedNames = CHALLENGES.filter(c => challengeState[c.id] > 0)
-        .map(c => `${c.name} (x${challengeState[c.id]})`);
     const score = computeScore();
+    const lapCount = Math.max(lapTimes.length, 1);
+    const lapIndexes = Array.from({ length: lapCount }, (_, i) => i);
+    // Per-lap breakdowns, e.g. "Lap 1: Gravel (x1); Potholes (x2)" -- laps with
+    // no failures are omitted from the names but still get a penalty entry.
+    const missedNames = lapIndexes.map(i => {
+        const state = getLapState(i);
+        const names = CHALLENGES.filter(c => state[c.id]).map(c => c.name);
+        return names.length ? `Lap ${i + 1}: ${names.join(', ')}` : '';
+    }).filter(Boolean);
+    const lapPenalties = lapIndexes.map(i => `Lap ${i + 1}: ${penaltySeconds(lapMissedCount(i)).toFixed(3)}`);
     const header = [
-        'Timestamp', 'Team', 'Final Score', 'Final Score (s)',
-        'Base Time - Best Lap (s)', 'Missed Obstacles', 'Missed Obstacle Names',
-        'Penalty (s)', 'Lap Times',
+        'Timestamp', 'Team', 'Final Score', 'Final Score (s)', 'Scoring Lap',
+        'Base Time - Scoring Lap (s)', 'Skipped Obstacles (Scoring Lap)', 'Penalty (s)',
+        'Lap Times', 'Lap Penalties (s)', 'Skipped Obstacle Names (By Lap)',
     ];
     const row = [
         new Date().toISOString(),
         selectedTeam,
         formatTime(Math.floor(score.finalTimeS * 1000)),
         score.finalTimeS.toFixed(3),
+        score.lapIndex + 1,
         score.baseTimeS.toFixed(3),
         score.numMissed,
-        missedNames.join('; '),
         score.penaltyS.toFixed(3),
         lapTimes.map(formatTime).join('; '),
+        lapPenalties.join('; '),
+        missedNames.join('; '),
     ];
     return header.map(csvField).join(',') + '\r\n' + row.map(csvField).join(',') + '\r\n';
 }
