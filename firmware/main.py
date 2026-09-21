@@ -28,7 +28,7 @@ from machine import Pin, I2C
 # ==============================================================================
 
 # Relay is active-high
-PIN_RELAY_OUT = 11
+PIN_RELAY_OUT = 3
 
 # Display I2C
 # These SCL/SDA pins correspond to the PIMORONI Pico Plus 2's QT port.
@@ -56,10 +56,10 @@ def main():
     # First, construct the HAL with a mapping of buttons to pins. You can add
     # or remove from this mapping to change the number of buttons in your system.
     button_map = {
-        Button(0): Pin(6, Pin.IN, Pin.PULL_DOWN),
-        Button(1): Pin(7, Pin.IN, Pin.PULL_DOWN),
-        Button(2): Pin(8, Pin.IN, Pin.PULL_UP),
-        Button(3): Pin(9, Pin.IN, Pin.PULL_DOWN),
+        Button(1): Pin(27, Pin.IN, Pin.PULL_UP),
+        Button(2): Pin(26, Pin.IN, Pin.PULL_UP),
+        Button(3): Pin(22, Pin.IN, Pin.PULL_UP),
+        Button(4): Pin(21, Pin.IN, Pin.PULL_UP),
     }
     # Bring up the access point first so the display and web server have a
     # network to report. ap.ip is the address clients browse to.
