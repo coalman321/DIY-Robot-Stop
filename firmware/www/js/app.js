@@ -551,16 +551,16 @@ function renderLaps() {
 
     // Highlight the lap that counts toward the score (best time after penalty).
     const scoringLap = computeScore().lapIndex;
-    let cumulative = 0;
 
     lapTimes.forEach((lapMs, index) => {
-        cumulative += lapMs;
+        const penaltyMs = Math.round(penaltySeconds(lapMissedCount(index)) * 1000);
         const li = document.createElement('li');
         if (index === scoringLap) li.classList.add('best-lap');
         li.innerHTML = `
             <span class="lap-number">Lap ${index + 1}</span>
             <span class="lap-time">${formatTime(lapMs)}</span>
-            <span class="lap-total">${formatTime(cumulative)}</span>
+            <span class="lap-penalty">+${formatTime(penaltyMs)}</span>
+            <span class="lap-total">${formatTime(lapMs + penaltyMs)}</span>
         `;
         lapTimesList.appendChild(li);
     });
