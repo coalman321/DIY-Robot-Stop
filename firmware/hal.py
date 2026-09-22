@@ -65,7 +65,7 @@ class EStopHal:
 
     def write_relay(self, stop_state: StopState):
         # Prerequisites: the caller has initialized the relay pin
-        self._relay_pin.value(1 if stop_state.stopped else 0)
+        self._relay_pin.value(0 if stop_state.stopped else 1)
 
     def write_bytes_to_websockets(self, data: bytes):
         # Prerequisites: the caller has knowledge of all current WS clients and can send data to them
